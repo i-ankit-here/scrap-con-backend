@@ -262,6 +262,7 @@ export const getNearbyVendors = async (req, res, next) => {
           distanceField: "distance",
           maxDistance: Number.parseInt(radius),
           spherical: true,
+          key: "center", // Specify the field name that has the 2dsphere index
         },
       },
       {
@@ -297,7 +298,6 @@ export const getNearbyVendors = async (req, res, next) => {
 export const getNearbyVendorsForUser = async (req, res, next) => {
   try {
     const user = await User.findById(req.user._id).populate("address")
-    // console.log(user)
 
     if (!user || !user.address || !user.address.coordinates) {
       res.status(400)
@@ -314,6 +314,7 @@ export const getNearbyVendorsForUser = async (req, res, next) => {
           distanceField: "distance",
           maxDistance: radius,
           spherical: true,
+          key: "center", // Specify the field name that has the 2dsphere index
         },
       },
       {
@@ -340,6 +341,28 @@ export const getNearbyVendorsForUser = async (req, res, next) => {
     res.json({
       count: nearbyVendors.length,
       vendors: nearbyVendors,
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+export const updateVendorAvailability = async (req, res, next) => {
+  try {
+    const { isAvailable } = req.body
+
+    const vendor = await Vendor.findById(req.user._id)
+    if (!vendor) {
+      res.status(404)
+      throw new Error("Vendor not found")
+    }
+
+    vendor.isActive = isAvailable
+    const updatedVendor = await vendor.save()
+
+    res.json({
+      message: "Vendor availability updated successfully",
+      isAvailable: updatedVendor.isAvailable,
     })
   } catch (error) {
     next(error)

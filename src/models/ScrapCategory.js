@@ -1,22 +1,21 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose"
 
-const scrapCategorySchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
-    unique: true,
+const scrapCategorySchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    pricePerUnit: {
+      type: Number,
+      required: true,
+    },
   },
-  description: String,
-  unit: {
-    type: String,
-    required: true,
+  {
+    timestamps: true,
   },
-  iconUrl: String,
-  isActive: {
-    type: Boolean,
-    default: true,
-  },
-});
+)
 
-export const ScrapCategory = mongoose.model('ScrapCategory', scrapCategorySchema);
+export const ScrapCategory = mongoose.model("ScrapCategory", scrapCategorySchema)
 
