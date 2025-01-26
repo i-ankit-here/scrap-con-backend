@@ -1,33 +1,39 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose"
 
 const serviceAreaSchema = new mongoose.Schema({
   vendor: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Vendor',
+    ref: "Vendor",
     required: true,
   },
-  area: {
+  center: {
     type: {
       type: String,
-      enum: ['Polygon'],
+      enum: ["Point"],
       required: true,
     },
     coordinates: {
-      type: [[[Number]]],
+      type: [Number],
       required: true,
     },
   },
-  city: {
-    type: String,
+  radius: {
+    type: Number,
     required: true,
-  },
-  state: {
-    type: String,
-    required: true,
+    min: 0,
+    max: 50, // Maximum 50 km radius
   },
   pincode: {
     type: String,
-    required: true,
+    required: false,
+  },
+  city: {
+    type: String,
+    required: false,
+  },
+  state: {
+    type: String,
+    required: false,
   },
   serviceStart: {
     type: String,
@@ -37,9 +43,9 @@ const serviceAreaSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-});
+})
 
-serviceAreaSchema.index({ area: '2dsphere' });
+serviceAreaSchema.index({ center: "2dsphere" })
 
-export const ServiceArea = mongoose.model('ServiceArea', serviceAreaSchema);
+export const ServiceArea = mongoose.model("ServiceArea", serviceAreaSchema)
 
