@@ -2,6 +2,7 @@ import { Vendor } from "../../models/Vendor.js"
 import { ServiceArea } from "../../models/ServiceArea.js"
 import { generateToken } from "../../utils/auth.js"
 import { getLocationDetails } from "../../services/geocodingService.js"
+import { User } from "../../models/User.js" // Import User model
 
 export const registerVendor = async (req, res, next) => {
   try {
@@ -239,6 +240,106 @@ export const updateVendorLocation = async (req, res, next) => {
         city: locationDetails.city,
         state: locationDetails.state,
       },
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+export const getNearbyVendors = async (req, res, next) => {
+  try {
+    const { latitude, longitude, radius = 5000 } = req.query // radius in meters, default 5km
+
+    if (!latitude || !longitude) {
+      res.status(400)
+      throw new Error("Latitude and longitude are required")
+    }
+
+    const nearbyVendors = await ServiceArea.aggregate([
+      {
+        $geoNear: {
+          near: { type: "Point", coordinates: [Number.parseFloat(longitude), Number.parseFloat(latitude)] },
+          distanceField: "distance",
+          maxDistance: Number.parseInt(radius),
+          spherical: true,
+        },
+      },
+      {
+        $lookup: {
+          from: "vendors",
+          localField: "vendor",
+          foreignField: "_id",
+          as: "vendorDetails",
+        },
+      },
+      { $unwind: "$vendorDetails" },
+      {
+        $project: {
+          _id: 0,
+          vendorId: "$vendorDetails._id",
+          businessName: "$vendorDetails.businessName",
+          distance: 1,
+          serviceStart: 1,
+          serviceEnd: 1,
+        },
+      },
+    ])
+
+    res.json({
+      count: nearbyVendors.length,
+      vendors: nearbyVendors,
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+export const getNearbyVendorsForUser = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id).populate("address")
+    // console.log(user)
+
+    if (!user || !user.address || !user.address.coordinates) {
+      res.status(400)
+      throw new Error("User location not found")
+    }
+
+    const [longitude, latitude] = user.address.coordinates.coordinates
+    const radius = 5000 // 5km radius, you can make this configurable
+
+    const nearbyVendors = await ServiceArea.aggregate([
+      {
+        $geoNear: {
+          near: { type: "Point", coordinates: [longitude, latitude] },
+          distanceField: "distance",
+          maxDistance: radius,
+          spherical: true,
+        },
+      },
+      {
+        $lookup: {
+          from: "vendors",
+          localField: "vendor",
+          foreignField: "_id",
+          as: "vendorDetails",
+        },
+      },
+      { $unwind: "$vendorDetails" },
+      {
+        $project: {
+          _id: 0,
+          vendorId: "$vendorDetails._id",
+          businessName: "$vendorDetails.businessName",
+          distance: 1,
+          serviceStart: 1,
+          serviceEnd: 1,
+        },
+      },
+    ])
+
+    res.json({
+      count: nearbyVendors.length,
+      vendors: nearbyVendors,
     })
   } catch (error) {
     next(error)

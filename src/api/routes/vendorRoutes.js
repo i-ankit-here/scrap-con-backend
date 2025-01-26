@@ -7,6 +7,8 @@ import {
   updateServiceArea,
   getServiceArea,
   updateVendorLocation,
+  getNearbyVendors,
+  getNearbyVendorsForUser,
 } from "../controllers/vendorController.js"
 import { protect, vendorOnly } from "../../middleware/authMiddleware.js"
 
@@ -19,6 +21,8 @@ router.put("/profile", protect, vendorOnly, updateVendorProfile)
 router.put("/service-area", protect, vendorOnly, updateServiceArea)
 router.get("/service-area", protect, vendorOnly, getServiceArea)
 router.put("/location", protect, vendorOnly, updateVendorLocation)
+router.get("/nearby", getNearbyVendors)
+router.get("/nearby-for-user", protect, getNearbyVendorsForUser)
 
 export default router
 
