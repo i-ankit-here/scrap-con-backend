@@ -9,6 +9,7 @@ import { notFoundHandler } from "./middleware/notFoundHandler.js"
 import userRoutes from "./api/routes/userRoutes.js"
 import vendorRoutes from "./api/routes/vendorRoutes.js"
 import pickupRoutes from "./api/routes/pickupRoutes.js"
+import reviewRoutes from "./api/routes/reviewRoutes.js"
 import scrapCategoryRoutes from "./api/routes/scrapCategoryRoutes.js"
 import adminRoutes from "./api/routes/adminRoutes.js"
 
@@ -35,6 +36,7 @@ app.use("/api/vendors", vendorRoutes)
 app.use("/api/pickups", pickupRoutes)
 app.use("/api/scrap-categories", scrapCategoryRoutes)
 app.use("/api/admin", adminRoutes)
+app.use("/api/reviews", reviewRoutes)
 
 // Error handling
 app.use(notFoundHandler)
