@@ -10,6 +10,11 @@ import {
   getNearbyVendors,
   getNearbyVendorsForUser,
   updateVendorAvailability,
+  createScrapRates,
+  createScrapRate,
+  updateScrapRate,
+  deleteScrapRate,
+  deleteScrapRateByCategoryId
 } from "../controllers/vendorController.js"
 import { protect, vendorOnly } from "../../middleware/authMiddleware.js"
 
@@ -25,6 +30,11 @@ router.put("/location", protect, vendorOnly, updateVendorLocation)
 router.get("/nearby", getNearbyVendors)
 router.get("/nearby-for-user", protect, getNearbyVendorsForUser)
 router.put("/availability", protect, vendorOnly, updateVendorAvailability)
+router.post("/createScrapRates", protect, vendorOnly, createScrapRates)
+router.post("/createScrapRate", protect, vendorOnly, createScrapRate)
+router.post("/updateScrapRate", protect, vendorOnly, updateScrapRate)
+router.get("/deleteRateById/:rateId", protect, vendorOnly, deleteScrapRate)
+router.get("/deleteRateByCategoryId/:categoryId", protect, vendorOnly, deleteScrapRateByCategoryId)
 
 export default router
 
