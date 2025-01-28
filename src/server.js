@@ -38,7 +38,7 @@ app.use("/api/scrap-categories", scrapCategoryRoutes)
 app.use("/api/admin", adminRoutes)
 app.use("/api/reviews", reviewRoutes)
 //import controller for leaderboard
-import {getAllUsers} from "./api/controllers/leaderboard.js"
+import {getAllUsers} from "./api/controllers/leaderboardController.js"
 app.get("/api/leaderboard", getAllUsers)
 
 // Error handling
