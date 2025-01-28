@@ -37,6 +37,9 @@ app.use("/api/pickups", pickupRoutes)
 app.use("/api/scrap-categories", scrapCategoryRoutes)
 app.use("/api/admin", adminRoutes)
 app.use("/api/reviews", reviewRoutes)
+//import controller for leaderboard
+import {getAllUsers} from "./api/controllers/leaderboard.js"
+app.get("/api/leaderboard", getAllUsers)
 
 // Error handling
 app.use(notFoundHandler)
