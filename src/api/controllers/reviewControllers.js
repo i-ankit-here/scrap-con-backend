@@ -96,8 +96,37 @@ export const getReviewByPickup = async (req, res, next) => {
       }
 
       const review = await Review.findOne({pickup:pickupId})
+
+      if(!review){
+        res.status(401);
+        throw new Error("Wrong Id provided")
+      }
       
       res.status(201).json(review);
+  
+    } catch (error) {
+      next(error)
+    }
+  }
+export const deleteReview = async (req, res, next) => {
+    try {
+      const {reviewId} = req.params;
+      if(!reviewId){
+          res.status(401);
+          throw new Error("Provide reviewId");
+      }
+
+      const review = await Review.findById(reviewId);
+      if(!review){
+        res.status(401);
+        throw new Error("Wrong Id provided")
+      }
+
+      await Review.deleteOne(review);
+
+      res.status(201).json({
+        message:`Review with id ${reviewId} deleted successfully`
+      });
   
     } catch (error) {
       next(error)
