@@ -32,9 +32,9 @@ router.get("/nearby-for-user", protect, getNearbyVendorsForUser)
 router.put("/availability", protect, vendorOnly, updateVendorAvailability)
 router.post("/createScrapRates", protect, vendorOnly, createScrapRates)
 router.post("/createScrapRate", protect, vendorOnly, createScrapRate)
-router.post("/updateScrapRate", protect, vendorOnly, updateScrapRate)
-router.get("/deleteRateById/:rateId", protect, vendorOnly, deleteScrapRate)
-router.get("/deleteRateByCategoryId/:categoryId", protect, vendorOnly, deleteScrapRateByCategoryId)
+router.put("/updateScrapRate", protect, vendorOnly, updateScrapRate)
+router.delete("/deleteRateById/:rateId", protect, vendorOnly, deleteScrapRate)
+router.delete("/deleteRateByCategoryId/:categoryId", protect, vendorOnly, deleteScrapRateByCategoryId)
 
 export default router
 

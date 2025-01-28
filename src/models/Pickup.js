@@ -40,6 +40,7 @@ const pickupSchema = new mongoose.Schema(
         unit: {
           type: String,
           required: true,
+          enum: ["gm", "kg"],
         },
       },
     ],

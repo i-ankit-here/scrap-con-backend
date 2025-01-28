@@ -8,7 +8,7 @@ const leaderboardSchema = new mongoose.Schema({
   },
   rank: {
     type: Number,
-    required: true,
+    // required: true,
   },
   totalCarbonSaved: {
     type: Number,
