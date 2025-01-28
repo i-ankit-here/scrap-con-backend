@@ -101,3 +101,22 @@ export const updatePickupStatus = async (req, res, next) => {
   }
 }
 
+
+export const getPickupHistory = async (req, res, next) => {
+  try {
+    let history = [];
+    if(req.isVendor){
+      history = await Pickup.find({
+        vendor : req.user?._id
+      })
+    }else{
+      history = await Pickup.find({
+        customer : req.user?._id
+      })
+    }
+    res.status(200).json({data:history})
+  } catch (error) {
+    next(error)
+  }
+}
+
