@@ -2,6 +2,9 @@ import { Pickup } from "../../models/Pickup.js"
 import { User } from "../../models/User.js"
 import { Vendor } from "../../models/Vendor.js"
 import { UserAddress } from "../../models/UserAddress.js"
+import { CarbonFootprint } from "../../models/CarbonFootprint.js"
+import { ScrapCategory } from "../../models/ScrapCategory.js"
+import { Leaderboard } from "../../models/Leaderboard.js"
 
 export const requestPickup = async (req, res, next) => {
   try {
@@ -88,9 +91,46 @@ export const updatePickupStatus = async (req, res, next) => {
       res.status(403)
       throw new Error("Not authorized to update this pickup")
     }
-
+    if(pickup.status == "completed" && status == "completed"){
+      res.status(401)
+      throw new Error("Pickup status is already completed")
+    }
     pickup.status = status
     const updatedPickup = await pickup.save()
+    if (updatedPickup.status == "completed") {
+
+      const categories = await ScrapCategory.find({});
+      const obj = {};
+      categories.forEach((item) => {
+        obj[item._id] = item.carbonFootPrint;
+      })
+      let carbonSaved = 0;
+      let totalQuantity = 0;
+      updatedPickup.items.forEach((item) => {
+        if (item.unit == "gm") {
+          item.quantity = item.quantity / 1000;
+        }
+        carbonSaved += (obj[item.category] * item.quantity);
+        totalQuantity += item.quantity;
+      })
+      const carbonSavedForPickup = await CarbonFootprint.create({
+        user: updatedPickup.customer,
+        pickup: updatedPickup._id,
+        carbonSaved: carbonSaved
+      })
+      const leaderBoardUser = await Leaderboard.findOne({ user: updatedPickup.customer });
+      if (leaderBoardUser) {
+        leaderBoardUser.totalCarbonSaved += carbonSaved;
+        leaderBoardUser.totalScrapSold += totalQuantity;
+        await leaderBoardUser.save();
+      } else {
+        const newleaderBoardUser = await Leaderboard.create({
+          user: updatedPickup.customer,
+          totalCarbonSaved: carbonSaved,
+          totalScrapSold: totalQuantity
+        })
+      }
+    }
 
     res.json({
       message: "Pickup status updated successfully",
@@ -105,16 +145,16 @@ export const updatePickupStatus = async (req, res, next) => {
 export const getPickupHistory = async (req, res, next) => {
   try {
     let history = [];
-    if(req.isVendor){
+    if (req.isVendor) {
       history = await Pickup.find({
-        vendor : req.user?._id
+        vendor: req.user?._id
       })
-    }else{
+    } else {
       history = await Pickup.find({
-        customer : req.user?._id
+        customer: req.user?._id
       })
     }
-    res.status(200).json({data:history})
+    res.status(200).json({ data: history })
   } catch (error) {
     next(error)
   }
