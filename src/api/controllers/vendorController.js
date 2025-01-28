@@ -3,6 +3,7 @@ import { ServiceArea } from "../../models/ServiceArea.js"
 import { generateToken } from "../../utils/auth.js"
 import { getLocationDetails } from "../../services/geocodingService.js"
 import { User } from "../../models/User.js" // Import User model
+import {ScrapRate} from "../../models/ScrapRate.js"
 
 export const registerVendor = async (req, res, next) => {
   try {
@@ -368,4 +369,129 @@ export const updateVendorAvailability = async (req, res, next) => {
     next(error)
   }
 }
+
+export const createScrapRates = async (req, res, next) => {
+  try {
+    const {rates} = req.body;
+    if(!rates || rates.length == 0){
+      res.status(401);
+      throw new Error("Provide Array of Rates")
+    }
+    const nrates = rates.map((item)=>{
+      return {...item,vendor:req.user._id}
+    })
+    const createdRates = await ScrapRate.insertMany(nrates);
+    if(!createdRates){
+      res.status(500);
+      throw new Error("Error saving in DB");
+    }
+    res.json({
+      message: "rates set successfully",
+      rates : createdRates,
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+export const createScrapRate = async (req, res, next) => {
+  try {
+    let {vendor,category,ratePerUnit,effectiveFrom,effectiveTo} = req.body;
+    if(!category || !ratePerUnit || !effectiveFrom){
+      res.status(401);
+      throw new Error("Provide all details")
+    }
+    if(!vendor){
+      vendor = req.user._id;
+    }
+    const createdRate = await ScrapRate.create({
+      vendor:vendor,
+      category:category,
+      ratePerUnit:ratePerUnit,
+      effectiveFrom:effectiveFrom,
+      effectiveTo:effectiveTo?effectiveTo:null
+    });
+    if(!createdRate){
+      res.status(500);
+      throw new Error("Error saving in DB");
+    }
+    res.json({
+      message: "rate set successfully",
+      rate : createdRate,
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+export const updateScrapRate = async (req, res, next) => {
+  try {
+    const {ScrapRateId,category,ratePerUnit,effectiveFrom,effectiveTo} = req.body;
+    if(!ScrapRateId){
+      res.status(401);
+      throw new Error("Provide ratId")
+    }
+    const existedRate = await ScrapRate.findById(ScrapRateId);
+    existedRate.category = category?category:existedRate.category;
+    existedRate.ratePerUnit = ratePerUnit?ratePerUnit:existedRate.ratePerUnit;
+    existedRate.effectiveFrom = effectiveFrom?effectiveFrom:existedRate.effectiveFrom;
+    existedRate.effectiveTo = effectiveTo?effectiveTo:existedRate.effectiveTo?existedRate.effectiveTo:null;
+    await existedRate.save();
+    const updatedRate = await ScrapRate.findById(ScrapRateId);
+    if(!updatedRate){
+      res.status(500);
+      throw new Error("Error saving in DB");
+    }
+    res.json({
+      message: "rate updated successfully",
+      rates : updatedRate,
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+export const deleteScrapRate = async (req, res, next) => {
+  try {
+    const {rateId} = req.params;
+    if(!rateId){
+      res.status(401);
+      throw new Error("Provide rateId")
+    }
+    const existedRate = await ScrapRate.findById(rateId);
+    if(!existedRate){
+      res.status(401);
+      throw new Error("Rate does Not Exists");
+    }
+    const deletedRate = await ScrapRate.deleteOne(existedRate);
+    res.json({
+      message: "rate deleted successfully",
+      rates : deletedRate,
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+export const deleteScrapRateByCategoryId = async (req, res, next) => {
+  try {
+    const {categoryId} = req.params;
+    if(!categoryId){
+      res.status(401);
+      throw new Error("Provide categoryId")
+    }
+    const existedRate = await ScrapRate.findone({category : categoryId});
+    if(!existedRate){
+      res.status(401);
+      throw new Error("Rate does Not Exists");
+    }
+    const deletedRate = await ScrapRate.deleteOne({category : categoryId});
+    res.json({
+      message: "rate deleted successfully",
+      rates : deletedRate,
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
 
