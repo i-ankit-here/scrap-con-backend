@@ -32,6 +32,10 @@ export const updateReview = async (req, res, next) => {
         res.status(401);
         throw new Error("Please provide ReviewId or pickupId")
     }
+    if(req.isVendor){
+      res.status(401);;
+      throw new Error("Vendor is not authorized to update a review");
+    }
     let review = {}
     if(reviewId){
         review = await Review.findById(reviewId);
