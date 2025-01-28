@@ -11,6 +11,10 @@ const scrapCategorySchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    carbonFootPrint: {
+      type:Number,
+      required: true,
+    }
   },
   {
     timestamps: true,
